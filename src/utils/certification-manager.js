@@ -1,4 +1,3 @@
-
 const IPFS = require('ipfs')
 
 import { default as contract } from 'truffle-contract'
@@ -9,11 +8,11 @@ import Web3 from 'web3'
 // Import our contract artifacts and turn them into usable abstractions.
 import CertifyContractArtifacts from '../../build/contracts/Certify.json'
 
-//CertificateManager library
-class CertificateManager {
+//CertificationManager library
+class CertificationManager {
 
   /**
-   * Create a certificate manager.
+   * Create a certification manager.
    * @constructor
    */
   constructor () {
@@ -36,7 +35,7 @@ class CertificateManager {
       content: Buffer.from(stringifyJSon)
     }, (err, result) => {
       if (err) {
-        if(callbackFailure) callbackFailure("Couldn't publish certificate. Error: " + err)
+        if(callbackFailure) callbackFailure("Couldn't publish certification. Error: " + err)
       }
       else {
         console.log('\nAdded file:', result[0].path, result[0].hash)
@@ -46,6 +45,7 @@ class CertificateManager {
     });
   }
 
+  // retrieve json file from IPFS using the hash
   _getJSonFromIPFS(ipfsHash, callbackSuccess, callbackFailure){
     this.nodeIPFS.files.cat(ipfsHash, (err, stream) => {
       if (err) {
@@ -79,8 +79,8 @@ class CertificateManager {
     });
   }
 
-  //Associates a IPFS hash to a certificate (private function)
-  _associateCertificateToInstitution (ipfsHash, callbackSuccess, callbackFailure){
+  //Associates a IPFS hash to a certification (private function)
+  _associateCertificationToInstitution (ipfsHash, callbackSuccess, callbackFailure){
     var self = this;
 
     self.certifyInstance.createCertification(ipfsHash, {from: self.myAccount}).then(function(txObj) {
@@ -96,7 +96,7 @@ class CertificateManager {
 
   
   /**
-  * Initializes the CertificateManager library
+  * Initializes the CertificationManager library
   * @param {object} config - The config settings object to initialize the manager. Parameters: web3's provider.
   * @param {function} callbackSuccess - The callback function.
   */
@@ -112,7 +112,7 @@ class CertificateManager {
         web3 = new Web3(web3.currentProvider);
       }
       else {
-        alert("No web3 detected.");
+        console.warn("No web3 detected.");
         // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
         web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
       }
@@ -133,10 +133,9 @@ class CertificateManager {
         alert("There was an error fetching your accounts.");
         return;
       }
-
-
       
       var _self = self;
+      //interval to check if selected account changes and need to update frontend
       setInterval(function() {
         if (_self.accounts.length !== _self.web3.eth.accounts.length || 
           (_self.web3.eth.accounts.length >0 && _self.web3.eth.accounts[0] !== _self.myAccount)) {
@@ -144,7 +143,7 @@ class CertificateManager {
         }
       }, 300);
 
-      
+      //no accounts found
       if(accs.length === 0){
         self.userRole = -1;        
         self.accounts = [];
@@ -160,7 +159,7 @@ class CertificateManager {
       self.nodeIPFS.on('ready', function(){
         console.log("IPFS node is ready");
 
-        //get my role
+        //get my role to draw dashboard
         self.certifyContract.deployed().then((instance) => {
           self.certifyInstance = instance;
           return self.certifyInstance.getMyRole({from: self.myAccount})
@@ -175,7 +174,7 @@ class CertificateManager {
 
   /**
   * Add a new admin to the system.
-  * @param {string} receiver - The address of the admin.
+  * @param {string} receiverAddress - The address of the admin.
   * @param {function} callbackSuccess - The callback function to be executed when the admin is registered successfully.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
@@ -200,7 +199,7 @@ class CertificateManager {
 
   /**
   * Publish a new institution in IPFS and associate the hash to the institution address.
-  * @param {string} receiver - The address of the institution.
+  * @param {string} receiverAddress - The address of the institution.
   * @param {object} json - The json representing the institution's info.
   * @param {function} callbackSuccess - The callback function to be executed when the insitution is registered successfully.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
@@ -213,39 +212,38 @@ class CertificateManager {
       return;
     }
 
-    var stringifyJSon = JSON.stringify(json);
-    self._addJsonToIPFS (stringifyJSon, function(ipfsHash){
+    self._addJsonToIPFS (json, function(ipfsHash){
       self._associateInstitutionInfo(receiverAddress, ipfsHash, callbackSuccess, callbackFailure)
     })
   }
 
   /**
-  * Publish a new certificate in IPFS and associate the hash to the address.
-  * @param {object} json - The json representing the certificate (Open Badge format).
-  * @param {function} callbackSuccess - The callback function to be executed when the certificate is registered successfully.
+  * Publish a new certification in IPFS and associate the hash to the address.
+  * @param {object} json - The json representing the certification.
+  * @param {function} callbackSuccess - The callback function to be executed when the certification is registered successfully.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
-  createCertificate (json, callbackSuccess, callbackFailure){
+  createCertification (json, callbackSuccess, callbackFailure){
     var self = this;
 
     self._addJsonToIPFS (json, function(ipfsHash){
-      self._associateCertificateToInstitution(ipfsHash, callbackSuccess, callbackFailure)
+      self._associateCertificationToInstitution(ipfsHash, callbackSuccess, callbackFailure)
     })
   }
 
   /**
-  * Returns a the list of certificates created by an Institution
-  * @param {function} callbackSuccess - The callback function to be executed when the list of certificates is retrieved successfully.
+  * Returns a the list of certifications created by an Institution
+  * @param {function} callbackSuccess - The callback function to be executed when the list of certifications is retrieved successfully.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
-  getInstitutionCertificates (callbackSuccess, callbackFailure){
+  getInstitutionCertifications (callbackSuccess, callbackFailure){
     var self = this;
 
     var _list = [];
-    var _totalCertificates;
+    var _totalCertifications;
 
     var _fnGetCertification = function(index){
-      if(_totalCertificates>_list.length){
+      if(_totalCertifications>_list.length){
         self.certifyInstance.getInstitutionCertification(index, {from: self.myAccount}).then(function(ipfsHash){
           self._getJSonFromIPFS(ipfsHash,
             function(json){
@@ -253,7 +251,7 @@ class CertificateManager {
               _fnGetCertification(index+1);
             },
             function(e){
-                if(callbackFailure) callbackFailure("Couldn't get certificate " + index + ". Error: " + e);
+                if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
             });
         });
       }
@@ -263,23 +261,26 @@ class CertificateManager {
     }
 
     self.certifyInstance.getInstitutionCertificationsCount({from: self.myAccount}).then(function(count){
-      _totalCertificates = count.toNumber();
+      _totalCertifications = count.toNumber();
       _fnGetCertification(0);
     }).catch(function(e) {
-        if(callbackFailure) callbackFailure("Couldn't get number of certificates. Error: " + e);
+        if(callbackFailure) callbackFailure("Couldn't get number of certifications. Error: " + e);
     });
   }  
 
   /**
-  * Issue a certificate to a student´s address and associate the hash to the address.
-  * @param {object} json - The json representing the certificate (Open Badge format).
-  * @param {function} callbackSuccess - The callback function to be executed when the certificate is registered successfully.
+  * Issue a certification to a student´s address and associate the hash to the address.
+  * @param {string} receiverAddress - Student's address.
+  * @param {string} ipfsHash - Certification's IPFS hash.
+  * @param {Date} date - Issue date.
+  * @param {number} score - Score with 2 decimals.
+  * @param {function} callbackSuccess - The callback function to be executed when the certification is registered successfully.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
   issueCertificacionToStudent (receiverAddress, ipfsHash, date, score, callbackSuccess, callbackFailure){
     var self = this;
     
-    self.certifyInstance.pricePerCertificate({from: self.myAccount}).then(function(weis) {
+    self.certifyInstance.pricePerCertification({from: self.myAccount}).then(function(weis) {
       debugger
       self.certifyInstance.issueCertificacionToStudent(receiverAddress, ipfsHash, date.getTime(), score*100, {from: self.myAccount, value: weis.toNumber()}).then(function(txObj) {
         if(txObj && txObj.receipt && txObj.receipt.status==0){
@@ -296,26 +297,31 @@ class CertificateManager {
   }
 
   /**
-  * Returns a the list of certificates issued to a Student
-  * @param {function} callbackSuccess - The callback function to be executed when the list of certificates is retrieved successfully.
+  * Returns a the list of certifications issued to a Student
+  * @param {function} callbackSuccess - The callback function to be executed when the list of certifications is retrieved successfully.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
-  getStudentCertificates (studentAddress, callbackSuccess, callbackFailure){
+  getStudentCertifications (studentAddress, callbackSuccess, callbackFailure){
     var self = this;
 
     var _list = [];
-    var _totalCertificates;
+    var _totalCertifications;
     debugger
     var _fnGetCertification = function(index){
-      if(_totalCertificates>_list.length){
+      if(_totalCertifications>_list.length){
         self.certifyInstance.getStudentCertification(studentAddress, index, {from: self.myAccount}).then(function(result){
-          self._getJSonFromIPFS(result[0],
-            function(json){
-              _list.push({hash: result[0], content: json, issueDate: new Date(result[1].toNumber()), score:(result[2].toNumber()/100.0)});
-              _fnGetCertification(index+1);
+          self._getJSonFromIPFS(result[0],function(jsonCertification){
+            self._getJSonFromIPFS(result[3],
+              function(jsonInstitution){
+                _list.push({hash: result[0], content: jsonCertification, issueDate: new Date(result[1].toNumber()), score:(result[2].toNumber()/100.0), institution: jsonInstitution});
+                _fnGetCertification(index+1);
+              },
+              function(e){
+                  if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
+              });
             },
             function(e){
-                if(callbackFailure) callbackFailure("Couldn't get certificate " + index + ". Error: " + e);
+                if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
             });
         });
       }
@@ -325,23 +331,26 @@ class CertificateManager {
     }
 
     self.certifyInstance.getStudentCertificationsCount(studentAddress, {from: self.myAccount}).then(function(count){
-      _totalCertificates = count.toNumber();
+      _totalCertifications = count.toNumber();
       _fnGetCertification(0);
     }).catch(function(e) {
-        if(callbackFailure) callbackFailure("Couldn't get number of certificates. Error: " + e);
+        if(callbackFailure) callbackFailure("Couldn't get number of certifications. Error: " + e);
     });
   } 
 
   /**
-  * Withdraw funds from the contract to admin address
+  * Withdraw funds from the contract to admin account
+  * @param {number} eth - Ethers to be withdraw.
   * @param {function} callbackSuccess - The callback function to be executed when successfully withdrawed.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
-  withdraw (callbackSuccess, callbackFailure){
+  withdraw (ether, callbackSuccess, callbackFailure){
     var self = this;
 
+    var wei =  self.web3.toWei(ether,'ether');
+
     self.certifyContract.deployed().then(function(contractself) {
-      contractself.withdraw({from: self.myAccount}).then(function(txObj) {
+      contractself.withdraw(wei, {from: self.myAccount}).then(function(txObj) {
         if(txObj && txObj.receipt && txObj.receipt.status==0){
           if(callbackFailure) callbackFailure("Couldn't withdraw funds. Returning transaction with status = 0.");
         }
@@ -354,8 +363,8 @@ class CertificateManager {
   }
 
   /**
-  * Set the price in ether to be charged to institutions when registering a new certificate
-  * @param {number} ether - The amount in ether to be chared when registering a new certificate.
+  * Set the price in ether to be charged to institutions when registering a new certification
+  * @param {number} ether - The amount in ether to be chared when registering a new certification.
   * @param {function} callbackSuccess - The callback function to be executed when successfully updated.
   * @param {function} callbackFailure - The callback function to be executed when an error occured.
   */
@@ -378,4 +387,4 @@ class CertificateManager {
   }
 }
 
-window.CertificateManager = new CertificateManager();
+window.CertificationManager = new CertificationManager();

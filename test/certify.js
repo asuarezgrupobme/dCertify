@@ -9,6 +9,7 @@ contract('Certify', function(accounts) {
   var institutionInfoIpfsHash = "123456";
   var certificationInfoIpfsHash = "943827942";
 
+  var pricePerCertification = 0.05; //in ethers
   it("Should check Admin Role.", function() {
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
@@ -16,6 +17,17 @@ contract('Certify', function(accounts) {
       return certifyInstance.getMyRole.call({from: adminAccount});
     }).then(function(role) {
       assert.equal(role, 1, "Account 0 should be Admin");
+    });
+  });
+
+  it("Should add Admin.", function() {
+    return Certify.deployed().then(function(instance) {
+      certifyInstance = instance;
+      return certifyInstance.addAdmin(accounts[3], {from: adminAccount});
+    }).then(function() {
+      return certifyInstance.getRole.call(accounts[3], {from: adminAccount});
+    }).then(function(role) {
+      assert.equal(role, 1, "Account 0 should be Admin now");
     });
   });
 
@@ -56,25 +68,37 @@ contract('Certify', function(accounts) {
     });
   });
 
-  it("Should add Certification to Student.", function() {
+  it("Should update price per certification", function() {
     
+    var wei =  web3.toWei(pricePerCertification,'ether');
+
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
+      return certifyInstance.updatePricePerCertification(wei, {from: adminAccount});
+    }).then(function() {
+      
+    })
+  });
+
+  it("Should issue Certification to Student.", function() {  
+    var wei =  web3.toWei(pricePerCertification,'ether');
+
+    return Certify.deployed().then(function(instance) {
+      certifyInstance = instance;
+      debugger
       return certifyInstance.getMyRole( {from: studentAccount});
     }).then(function(role) {
-      console.log("step 1");
       const issueDate = new Date(2018, 6, 15);
       assert.equal(role, 0, "Student's role should be Invalid at this point");
-      return certifyInstance.issueCertificacionToStudent(studentAccount, certificationInfoIpfsHash, issueDate.getTime(), 6.33*100, {from: institutionAccount, value: 1});
+      return certifyInstance.issueCertificacionToStudent(studentAccount, certificationInfoIpfsHash, issueDate.getTime(), 6.33*100, {from: institutionAccount, value: wei});
     }).then(function() {
-      console.log("step 2");
+      return web3.eth.getBalance(certifyInstance.address);
+    }).then(function(balance){
       return certifyInstance.getMyRole( {from: studentAccount});
     }).then(function(role) {
-      console.log("step 3");
       assert.equal(role.toNumber(), 3, "Student's role should be valid now.");
       return certifyInstance.getStudentCertificationsCount.call(studentAccount, {from: studentAccount});
     }).then(function(count) {
-      console.log("step 4");
       assert.equal(count, 1, "Student should have 1 certification.");
       return certifyInstance.getStudentCertification.call(studentAccount, 0, {from: studentAccount});
     }).then(function(certification) {
@@ -82,15 +106,22 @@ contract('Certify', function(accounts) {
     });
   });
 
-
+  
   it("Should withdraw funds.", function() {
     
+    var wei =  web3.toWei(pricePerCertification,'ether');
+
+    var _initialBalance;
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
-      return certifyInstance.withdraw( {from: adminAccount});
+      return web3.eth.getBalance(adminAccount)
+    }).then(function(balance){
+      _initialBalance = balance.toNumber();
+      return certifyInstance.withdraw(wei, {from: adminAccount});
     }).then(function() {
-      
+      return web3.eth.getBalance(adminAccount)
+    }).then(function(balance){
+      if(balance.toNumber()<= _initialBalance) throw("new balance should be greater"); //not considering gas used in transaction    
     })
   });
-
 });

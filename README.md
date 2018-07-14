@@ -1,2 +1,2 @@
 # dCertify
-DApp for creating and issueing certifications in Ethereum and IPFS
+DApp for creating and issuing certifications in Ethereum and IPFS

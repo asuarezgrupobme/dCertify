@@ -5,8 +5,8 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
  
 import 'react-datepicker/dist/react-datepicker.css';
-// Import the certificates manager
-import './certificate-manager.js';
+// Import the certifications manager
+import './certification-manager.js';
 
 const customStyles = {
     content : {
@@ -22,6 +22,7 @@ const customStyles = {
 // Make sure to bind modal to your appElement (http://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement('#root')
 
+//add institution component
 class AddInstitution extends React.Component {
 
     constructor(props) {
@@ -66,6 +67,7 @@ class AddInstitution extends React.Component {
     }
 }
 
+//add admin component
 class AddAdmin extends React.Component {
 
     constructor(props) {
@@ -102,20 +104,21 @@ class AddAdmin extends React.Component {
     }
 }
 
+//add certification component
 class AddCertification extends React.Component {
 
     constructor(props) {
         super(props);
         this.manager = this.props.manager;
-        this.createCertificate = this.createCertificate.bind(this);
+        this.createCertification = this.createCertification.bind(this);
     }
 
-    createCertificate() {
+    createCertification() {
         const _name = document.getElementById("name").value;
         const _description = document.getElementById("description").value;
         const _badge = document.getElementById("badge").value;
-        const _certificateJSON = {name: _name, description: _description, badge: _badge};
-        this.manager.createCertificate(_certificateJSON, function(tx, ipfsHash){
+        const _certificationJSON = {name: _name, description: _description, badge: _badge};
+        this.manager.createCertification(_certificationJSON, function(tx, ipfsHash){
             console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
         });     
@@ -139,7 +142,7 @@ class AddCertification extends React.Component {
                         <td><input id="badge"/></td>
                     </tr>
                         <tr>
-                            <td colSpan={2}><button onClick={() => this.createCertificate()}>Create</button></td>
+                            <td colSpan={2}><button onClick={() => this.createCertification()}>Create</button></td>
                         </tr>
                 </table>
             </div>
@@ -147,6 +150,7 @@ class AddCertification extends React.Component {
     }
 }
 
+//Institution's certification info component
 class CertificationInfo extends React.Component {
 
     constructor(props){
@@ -169,6 +173,7 @@ class CertificationInfo extends React.Component {
     }
 }
 
+//list institution's created certifications
 class InstitutionCertifications extends React.Component {
     constructor(props) {
         super(props);
@@ -180,7 +185,7 @@ class InstitutionCertifications extends React.Component {
         this.closeModal = this.closeModal.bind(this);
         
         const _this = this;
-        this.manager.getInstitutionCertificates(function(list){
+        this.manager.getInstitutionCertifications(function(list){
             _this.setState({certifications: list});
         })
     }
@@ -199,12 +204,12 @@ class InstitutionCertifications extends React.Component {
     render() {
         const certComponents = [];
         for(let i=0;i<this.state.certifications.length;i++) {
-            certComponents.push(<div key={i} style={{border: '1px solid black', padding: '10px'}}><CertificationInfo info={this.state.certifications[i]} /><button onClick={() => this.openModal(this.state.certifications[i])}>Issue to Student</button></div>);
+            certComponents.push(<div key={i} style={{border: '1px solid black', padding: '10px', marginBottom: '5px'}}><CertificationInfo info={this.state.certifications[i]} /><button onClick={() => this.openModal(this.state.certifications[i])}>Issue to Student</button></div>);
         }
 
         return (
             <div>
-                <h2>Certifications</h2>
+                <h2>My Certifications</h2>
                 <div id="certificationsContainer">
                     {certComponents}
                 </div>
@@ -228,6 +233,7 @@ class InstitutionCertifications extends React.Component {
     }
 }
 
+//issue certification to student
 class IssueCertification extends React.Component {
 
     constructor(props) {
@@ -278,27 +284,40 @@ class IssueCertification extends React.Component {
     }
 }
 
+//student's certification info component
 class StudentCertificationInfo extends React.Component {
 
     constructor(props){
         super(props);
         debugger
         this.certificationInfo = this.props.info.content;
+        debugger
         this.score = this.props.info.score;
         this.issueDate = this.props.info.issueDate;
+        this.institution = this.props.info.institution;
     }
 
     render() {          
         return (
             <div>
-                <div><b>{this.certificationInfo.name}</b></div>
-                <div><b>Issue Date:</b>{this.issueDate.toDateString()}</div>
-                <div><b>Score:</b>{this.score}</div>
+                
+                <table>
+                <tr>
+                    <td style={{verticalAlign: 'top', width: '100%'}}>
+                        <div><b>Name:</b>{this.certificationInfo.name}</div>
+                        <div><b>Institution:</b>{this.institution.name}</div>
+                        <div><b>Issue Date:</b>{this.issueDate.toDateString()}</div>
+                        <div><b>Score:</b>{this.score}</div>
+                    </td>
+                    <td style={{verticalAlign: 'top'}}><img src={this.certificationInfo.badge} alt="Not found" height="80"/></td>                   
+                </tr>
+            </table>
             </div>
         )
     }
 }
 
+//list student's received certifications component
 class StudentCertifications extends React.Component {
     constructor(props) {
         super(props);
@@ -306,7 +325,7 @@ class StudentCertifications extends React.Component {
         this.manager = this.props.manager;
         this.container = document.getElementById("certificationsContainer");
         const _this = this;
-        this.manager.getStudentCertificates(this.manager.myAccount, function(list){
+        this.manager.getStudentCertifications(this.manager.myAccount, function(list){
             _this.setState({certifications: list});
         })
     }
@@ -314,7 +333,7 @@ class StudentCertifications extends React.Component {
     render() {
         const certComponents = [];
         for(let i=0;i<this.state.certifications.length;i++) {
-            certComponents.push(<div key={i} style={{border: '1px solid black', padding: '10px'}}><StudentCertificationInfo key={i} info={this.state.certifications[i]} /></div>)
+            certComponents.push(<div key={i} style={{border: '1px solid black', padding: '10px', marginBottom: '5px'}}><StudentCertificationInfo key={i} info={this.state.certifications[i]} /></div>)
         }
 
         return (
@@ -328,6 +347,7 @@ class StudentCertifications extends React.Component {
     }
 }
 
+// admin dashboard component
 class AdminDashboard extends React.Component {
     render() {  
         return (
@@ -349,6 +369,7 @@ class AdminDashboard extends React.Component {
     }
 }
 
+// institution dashboard component
 class InstitutionDashboard extends Component {
     render() { 
         return (
@@ -360,18 +381,21 @@ class InstitutionDashboard extends Component {
                         <li><Link to="/">Home</Link></li>
                         <li><Link to="/addcertification">Create Certification</Link></li>
                         {/* <li><Link to="/issuecertification">Issue Certification to Student</Link></li> */}
-                        <li><Link to="/institutioncertifications">Certifications</Link></li>
+                        {/* <li><Link to="/institutioncertifications">Certifications</Link></li> */}
 
                     </ul>
                 </nav>
                 <Route path="/addcertification" render={(props) => <AddCertification {...props} manager={this.props.manager} />}/>
                 {/* <Route path="/issuecertification" component={IssueCertification}/> */}
-                <Route path="/institutioncertifications" render={(props) => <InstitutionCertifications {...props} manager={this.props.manager} />}/>
+                {/* <Route path="/institutioncertifications" render={(props) => <InstitutionCertifications {...props} manager={this.props.manager} />}/> */}
+
+                <InstitutionCertifications manager={this.props.manager} />
             </div>
         );
     }
 }
 
+// student dashboard component
 class StudentDashboard extends Component {
     render() {    
         return (
@@ -384,6 +408,7 @@ class StudentDashboard extends Component {
     }
 }
 
+// invalid role dashboard component
 class InvalidDashboard extends Component {
     render() {    
         return (
@@ -395,6 +420,7 @@ class InvalidDashboard extends Component {
     }
 }
 
+// error fetching accounts dashboard component
 class NoConnectionDashboard extends Component {
     render() {    
         return (
@@ -406,6 +432,7 @@ class NoConnectionDashboard extends Component {
     }
 }
 
+// dashboard component
 class Dashboard extends Component {
     
     render() {  
@@ -415,6 +442,7 @@ class Dashboard extends Component {
         const role = Number(this.props.manager.userRole);
         let dashboardComponent = null;
 
+        // show custom dashboard based on role associated to address
         switch(role) {
             case 0: dashboardComponent = <InvalidDashboard />; break;
             case 1: dashboardComponent = <AdminDashboard manager={this.props.manager}/>; break;

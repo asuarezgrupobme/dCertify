@@ -10,7 +10,11 @@ contract('Certify', function(accounts) {
   var certificationInfoIpfsHash = "943827942";
 
   var pricePerCertification = 0.05; //in ethers
-  it("Should check Admin Role.", function() {
+
+  /* Test 1
+  * Check if the admin role was associated to account 0
+  */
+  it("Test 1. Checking Admin Role.", function() {
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
 
@@ -20,7 +24,10 @@ contract('Certify', function(accounts) {
     });
   });
 
-  it("Should add Admin.", function() {
+  /* Test 2
+  * Add a new admin account
+  */
+ it("Test 2. Adding Admin (by admin)", function() {
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
       return certifyInstance.addAdmin(accounts[3], {from: adminAccount});
@@ -31,7 +38,10 @@ contract('Certify', function(accounts) {
     });
   });
 
-  it("Should create a new Institution.", function() {
+  /* Test 3
+  * Adding a new institution
+  */
+ it("Test 3. Creating a new Institution (by admin)", function() {
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
       
@@ -43,7 +53,10 @@ contract('Certify', function(accounts) {
     });
   });
 
-  it("Should create a new Certification.", function() {
+  /* Test 4
+  * Check if the admin role was associated to account 0
+  */
+ it("Test 4. Creating a new Certification (by institution).", function() {
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
       
@@ -58,17 +71,23 @@ contract('Certify', function(accounts) {
     });
   });
 
-  it("Check role of Student.", function() {
+  /* Test 5
+  * Check if the admin role was associated to account 0
+  */
+  it("Test 5. Check invalid account", function() {
     return Certify.deployed().then(function(instance) {
       certifyInstance = instance;
       
       return certifyInstance.getMyRole( {from: studentAccount});
     }).then(function(role) {
-      assert.equal(role, 0, "Student's role should be Invalid at this point");
+      assert.equal(role, 0, "Account should have Invalid role");
     });
   });
 
-  it("Should update price per certification", function() {
+  /* Test 6
+  * Update cost for issuing certification (by admin)
+  */
+  it("Test 6. Updating price per certification", function() {
     
     var wei =  web3.toWei(pricePerCertification,'ether');
 
@@ -80,7 +99,10 @@ contract('Certify', function(accounts) {
     })
   });
 
-  it("Should issue Certification to Student.", function() {  
+  /* Test 7
+  * Issue existing certification to student
+  */
+  it("Test 7. Issuing Certification to Student (by institution)", function() {  
     var wei =  web3.toWei(pricePerCertification,'ether');
 
     return Certify.deployed().then(function(instance) {
@@ -107,7 +129,10 @@ contract('Certify', function(accounts) {
   });
 
   
-  it("Should withdraw funds.", function() {
+  /* Test 8
+  * Withdraw funds from contract (by admin)
+  */
+  it("Test 8. Withdrawing funds.", function() {
     
     var wei =  web3.toWei(pricePerCertification,'ether');
 

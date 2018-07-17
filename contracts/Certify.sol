@@ -2,12 +2,13 @@ pragma solidity ^0.4.17;
 
 import "./Utils.sol";
 
+/** @title DCertify: issuing certifications on the blockchain. */
 contract Certify {        
 
+    //Modifiers
     modifier isAdmin() {require(userRoles[msg.sender] == Utils.UserRole.Admin); _;} //check if address is administrator
     modifier isInstitution() {require(userRoles[msg.sender] == Utils.UserRole.Institution); _;} //check if address is institution
     modifier isStudent() {require(userRoles[msg.sender] == Utils.UserRole.Student); _;} //check if address is student
-    
     modifier isRoleInvalid(address _addr) {require(userRoles[_addr] == Utils.UserRole.Invalid); _;} //check if address doesn't have role -> invalid
 
     modifier certificationNotExists(string _ipfsHash) {require(mapCertificationInstitution[_ipfsHash] == address(0x0)); _;}  //check if certification doesn´t exist
@@ -15,6 +16,7 @@ contract Certify {
     
     modifier enoughPay() {require(msg.value >= pricePerCertification); _;} //check if value sent is enough to pay for issuing certification
     
+    //Variables
     mapping (address => Utils.UserRole) private userRoles; // map of addresses and roles
     mapping (address => Utils.Institution) private mapInstitutions; // map of addresseses and institutions
     mapping (address => Utils.Student) private mapStudents; // map of addresses and students
@@ -22,6 +24,12 @@ contract Certify {
     mapping (string => address) private mapCertificationInstitution; // map of IPFS hashes and institutions' addresses
 
     uint public pricePerCertification; // price to issue certification
+
+    //Events
+    event AdminAdded(address _address);
+    event InstitutionAdded(address _address, string _ipfshHash);
+    event CertificationCreated(address _addressInstitution, string _ipfshHash);
+    event CertificationIssued(address _addressInstitution, string _ipfshHash, address _addressStudent);
 
     /* constructor
     Set the sender as administrator
@@ -47,18 +55,12 @@ contract Certify {
         return uint(userRoles[_addr]);
     }
 
-    /** @dev Set the price of issuing a certification. Only accesible to administrators
-        * @param _wei New price.
-        */
-    function updatePricePerCertification(uint _wei) public isAdmin {
-        pricePerCertification = _wei;
-    }
-
     /** @dev Add a new administrator to the system. Only accesible to administrators. Address not associated to another role.
         * @param _addrNewAdmin New admin's address.
         */
     function addAdmin(address _addrNewAdmin) public isAdmin isRoleInvalid(_addrNewAdmin) {
         userRoles[_addrNewAdmin] = Utils.UserRole.Admin;
+        emit AdminAdded(_addrNewAdmin);
     }
 
     /** @dev Add a new institution to the system. Only accesible to administrators. Address not associated to another role.
@@ -69,6 +71,7 @@ contract Certify {
         Utils.Institution memory _institution = Utils.Institution({ ipfsHashInfo: _ipfsHashInfo, certificationsIpfsHash: new string[](0)});
         mapInstitutions[_addrInstitution] = _institution;
         userRoles[_addrInstitution] = Utils.UserRole.Institution;
+        emit InstitutionAdded(_addrInstitution, _ipfsHashInfo);
     }
 
     /** @dev Create a new institution in the system. Only accesible to institutions. IFSH not associated to another certification.
@@ -77,6 +80,7 @@ contract Certify {
     function createCertification(string _ipfsHash) public isInstitution certificationNotExists(_ipfsHash) {
         mapCertificationInstitution[_ipfsHash] = msg.sender;
         mapInstitutions[msg.sender].certificationsIpfsHash.push(_ipfsHash);
+        emit CertificationCreated(msg.sender, _ipfsHash);
     }
 
     /** @dev Returns the number of certifications created by an institution. Only accesible to institutions
@@ -109,6 +113,7 @@ contract Certify {
         _student.hasCertification[_ipfsHash] = true; 
         _student.certificationsReceived.push(Utils.StudentCertification(_ipfsHash, _timeMiliseconds, _score));
         msg.sender.transfer(msg.value - pricePerCertification);
+        emit CertificationIssued(msg.sender, _ipfsHash, _addrStudent);
     }
 
     /** @dev Returns the number of certifications issued to a student. Only accesible to student or everyone if allowed
@@ -136,6 +141,13 @@ contract Certify {
         */
     function setStudentCertificationsPublicView(bool _publicView) public isStudent {
         mapStudents[msg.sender].allowPublicView = _publicView;
+    }
+
+    /** @dev Set the price of issuing a certification. Only accesible to administrators
+        * @param _wei New price.
+        */
+    function updatePricePerCertification(uint _wei) public isAdmin {
+        pricePerCertification = _wei;
     }
 
     /** @dev Withdraw funds in contract to admin address. Only accesible to admins. Check account has enough balance

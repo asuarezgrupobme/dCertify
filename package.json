@@ -50,19 +50,13 @@
   },
   "dependencies": {
     "dotenv": "^2.0.0",
-    "ipfs": "^0.29.3",
+    "ipfs": "^0.31.2",
     "moment": "^2.22.2",
     "react": "^15.4.2",
-    "react-alert": "^4.0.4",
-    "react-alert-template-basic": "^1.0.0",
     "react-datepicker": "^1.6.0",
     "react-dom": "^15.4.2",
     "react-modal": "^3.5.1",
-    "react-router-dom": "^4.3.1",
-    "react-transition-group": "^2.4.0",
-    "reactjs-popup": "^1.1.1",
-    "truffle": "^4.1.13",
-    "xtend": "^4.0.1"
+    "react-router-dom": "^4.3.1"
   },
   "scripts": {
     "start": "node scripts/start.js",

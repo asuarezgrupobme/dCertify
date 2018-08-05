@@ -158,8 +158,12 @@ class AddCertification extends React.Component {
         const _description = document.getElementById("description").value;
         const _badge = document.getElementById("badge").value;
         const _certificationJSON = {name: _name, description: _description, badge: _badge};
+        const _self = this;
         this.manager.createCertification(_certificationJSON, function(tx, ipfsHash){
             console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
+            _self.manager.getInstitutionCertifications(function(list){
+                _self.setState({certifications: list});
+            });
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
         });     
     }
@@ -169,21 +173,23 @@ class AddCertification extends React.Component {
             <div>
                 <h2>Create Certification</h2>
                 <table>
-                    <tr>
-                        <td>Name:</td>
-                        <td><input id="name"/></td>
-                    </tr>
-                    <tr>
-                        <td>Description:</td>
-                        <td><input id="description"/></td>
-                    </tr>
-                    <tr>
-                        <td>Badge Image URL:</td>
-                        <td><input id="badge"/></td>
-                    </tr>
+                    <tbody>
+                        <tr>
+                            <td>Name:</td>
+                            <td><input id="name"/></td>
+                        </tr>
+                        <tr>
+                            <td>Description:</td>
+                            <td><input id="description"/></td>
+                        </tr>
+                        <tr>
+                            <td>Badge Image URL:</td>
+                            <td><input id="badge"/></td>
+                        </tr>
                         <tr>
                             <td colSpan={2}><button onClick={() => this.createCertification()}>Create</button></td>
                         </tr>
+                    </tbody>
                 </table>
             </div>
         )

@@ -135,6 +135,14 @@ contract Certify {
         Utils.StudentCertification storage _certification = mapStudents[_addrStudent].certificationsReceived[_index];
         return (_certification.ipfsHash, _certification.issueTimeMiliseconds, _certification.score, mapInstitutions[mapCertificationInstitution[_certification.ipfsHash]].ipfsHashInfo);
     }
+    
+
+    /** @dev Returns true if students made certifications public for everyone
+        * @return _publicView Whether student's certifications are public
+        */
+    function getStudentCertificationsPublicView() view public isStudent returns (bool _publicView) {
+        return mapStudents[msg.sender].allowPublicView;
+    }
 
     /** @dev Allow or deny public access to the list of certifications issued to a student. Only accesible to student.
         * @param _publicView Allow public access to student´s certifications

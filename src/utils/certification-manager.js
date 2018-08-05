@@ -25,41 +25,49 @@ class CertificationManager {
     this.web3 = null;
   }
 
-  //add a JSON to IPFS (private function)
-  _addJsonToIPFS (json, callbackSuccess, callbackFailure){
-    
-    var stringifyJSon = JSON.stringify(json);
+  //add a JSON to IPFS. Using promises
+  async _addJsonToIPFS (json){
+    let promise = new Promise((resolve, reject) => {
+      var stringifyJSon = JSON.stringify(json);
 
-    this.nodeIPFS.files.add({
-      path: 'file.json',
-      content: Buffer.from(stringifyJSon)
-    }, (err, result) => {
-      if (err) {
-        if(callbackFailure) callbackFailure("Couldn't publish certification. Error: " + err)
-      }
-      else {
-        console.log('\nAdded file:', result[0].path, result[0].hash)
-        var fileMultihash = result[0].hash
-        if(callbackSuccess) callbackSuccess(fileMultihash)
-      }
+      this.nodeIPFS.files.add({
+        path: 'file.json',
+        content: Buffer.from(stringifyJSon)
+      }, (err, result) => {
+        if (err) {
+          reject("Couldn't publish certification. Error: " + err)
+        }
+        else {
+          console.log('\nAdded file:', result[0].path, result[0].hash);
+          var fileMultihash = result[0].hash;
+          resolve(fileMultihash);
+        }
+      });
     });
+    
+    return await promise;
   }
 
-  // retrieve json file from IPFS using the hash
-  _getJSonFromIPFS(ipfsHash, callbackSuccess, callbackFailure){
-    this.nodeIPFS.files.cat(ipfsHash, (err, stream) => {
-      if (err) {
-        if(callbackFailure) callbackFailure(err);
-      }
-      else {
-        var res = stream.toString('utf8');
-        var json = eval ("(" + res + ")");
-        if(callbackSuccess) callbackSuccess(json);
-      }
-    })
+  // retrieve json file from IPFS using the hash. Using promises 
+  async _getJSonFromIPFS(ipfsHash){
+    
+    let promise = new Promise((resolve, reject) => {
+      this.nodeIPFS.files.cat(ipfsHash, (err, stream) => {
+        if (err) {
+          reject(err);
+        }
+        else {
+          var res = stream.toString('utf8');
+          var json = eval ("(" + res + ")");
+          resolve(json);
+        }
+      })
+    });
+    
+    return await promise;
   }
   
-  //Associates a IPFS hash to a insitution (private function)
+  //Associates a IPFS hash to a insitution
   _associateInstitutionInfo (receiver, ipfsHash, callbackSuccess, callbackFailure){
     var self = this;
 
@@ -79,7 +87,7 @@ class CertificationManager {
     });
   }
 
-  //Associates a IPFS hash to a certification (private function)
+  //Associates a IPFS hash to a certification
   _associateCertificationToInstitution (ipfsHash, callbackSuccess, callbackFailure){
     var self = this;
 
@@ -212,9 +220,9 @@ class CertificationManager {
       return;
     }
 
-    self._addJsonToIPFS (json, function(ipfsHash){
-      self._associateInstitutionInfo(receiverAddress, ipfsHash, callbackSuccess, callbackFailure)
-    })
+    self._addJsonToIPFS (json).then((ipfsHash) => {  
+      self._associateInstitutionInfo(receiverAddress, ipfsHash, callbackSuccess, callbackFailure);
+    });
   }
 
   /**
@@ -226,7 +234,7 @@ class CertificationManager {
   createCertification (json, callbackSuccess, callbackFailure){
     var self = this;
 
-    self._addJsonToIPFS (json, function(ipfsHash){
+    self._addJsonToIPFS (json).then((ipfsHash) => {
       self._associateCertificationToInstitution(ipfsHash, callbackSuccess, callbackFailure)
     })
   }
@@ -245,12 +253,12 @@ class CertificationManager {
     var _fnGetCertification = function(index){
       if(_totalCertifications>_list.length){
         self.certifyInstance.getInstitutionCertification(index, {from: self.myAccount}).then(function(ipfsHash){
-          self._getJSonFromIPFS(ipfsHash,
-            function(json){
+          self._getJSonFromIPFS(ipfsHash)
+            .then(function(json){
               _list.push({hash: ipfsHash, content: json});
               _fnGetCertification(index+1);
-            },
-            function(e){
+            })
+            .catch(function(e){
                 if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
             });
         });
@@ -281,7 +289,6 @@ class CertificationManager {
     var self = this;
     
     self.certifyInstance.pricePerCertification({from: self.myAccount}).then(function(weis) {
-      debugger
       self.certifyInstance.issueCertificacionToStudent(receiverAddress, ipfsHash, date.getTime(), score*100, {from: self.myAccount, value: weis.toNumber()}).then(function(txObj) {
         if(txObj && txObj.receipt && txObj.receipt.status==0){
           if(callbackFailure) callbackFailure("Couldn't issue certification to student. Returning transaction with status = 0.");
@@ -306,21 +313,21 @@ class CertificationManager {
 
     var _list = [];
     var _totalCertifications;
-    debugger
     var _fnGetCertification = function(index){
       if(_totalCertifications>_list.length){
         self.certifyInstance.getStudentCertification(studentAddress, index, {from: self.myAccount}).then(function(result){
-          self._getJSonFromIPFS(result[0],function(jsonCertification){
-            self._getJSonFromIPFS(result[3],
-              function(jsonInstitution){
-                _list.push({hash: result[0], content: jsonCertification, issueDate: new Date(result[1].toNumber()), score:(result[2].toNumber()/100.0), institution: jsonInstitution});
-                _fnGetCertification(index+1);
-              },
-              function(e){
-                  if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
-              });
-            },
-            function(e){
+          self._getJSonFromIPFS(result[0])
+            .then(function(jsonCertification){
+              self._getJSonFromIPFS(result[3])
+                .then(function(jsonInstitution){
+                  _list.push({hash: result[0], content: jsonCertification, issueDate: new Date(result[1].toNumber()), score:(result[2].toNumber()/100.0), institution: jsonInstitution});
+                  _fnGetCertification(index+1);
+                })
+                .catch(function(e){
+                    if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
+                });
+            })
+            .catch(function(e){
                 if(callbackFailure) callbackFailure("Couldn't get certification " + index + ". Error: " + e);
             });
         });
@@ -355,7 +362,7 @@ class CertificationManager {
           if(callbackFailure) callbackFailure("Couldn't withdraw funds. Returning transaction with status = 0.");
         }
         else if(callbackSuccess)
-          callbackSuccess(txObj.tx);
+          callbackSuccess(txObj);
       }).catch(function(e) {
           if(callbackFailure) callbackFailure(e);
       });
@@ -374,17 +381,57 @@ class CertificationManager {
     var wei =  self.web3.toWei(ether,'ether');
 
     self.certifyContract.deployed().then(function(contractself) {
-      contractself.updatePrice(wei, {from: self.myAccount}).then(function(txObj) {
+      contractself.updatePricePerCertification(wei, {from: self.myAccount}).then(function(txObj) {
         if(txObj && txObj.receipt && txObj.receipt.status==0){
           if(callbackFailure) callbackFailure("Couldn't set price. Returning transaction with status = 0.");
         }
         else if(callbackSuccess)
-          callbackSuccess(txObj.tx);
+          callbackSuccess(txObj);
       }).catch(function(e) {
           if(callbackFailure) callbackFailure(e);
       });
     });
   }
+  
+
+  /**
+  * Set the visibility of the student's certications
+  * @param {number} isPublic - Whether student's certifications will be public.
+  * @param {function} callbackSuccess - The callback function to be executed when successfully updated.
+  * @param {function} callbackFailure - The callback function to be executed when an error occured.
+  */
+ setStudentCertificationsPublicView (isPublic, callbackSuccess, callbackFailure){
+    var self = this;
+
+    self.certifyContract.deployed().then(function(contractself) {
+      contractself.setStudentCertificationsPublicView(isPublic, {from: self.myAccount}).then(function(txObj) {
+        if(txObj && txObj.receipt && txObj.receipt.status==0){
+          if(callbackFailure) callbackFailure("Couldn't set visibility. Returning transaction with status = 0.");
+        }
+        else if(callbackSuccess)
+          callbackSuccess(txObj);
+      }).catch(function(e) {
+          if(callbackFailure) callbackFailure(e);
+      });
+    });
+  }
+  
+
+  /**
+  * Returns whether the student's certifications are public
+  * @param {function} callbackSuccess - The callback function to be executed when the visibility is retrieved.
+  * @param {function} callbackFailure - The callback function to be executed when an error occured.
+  */
+  getStudentCertificationsPublicView (callbackSuccess, callbackFailure){
+    var self = this;
+
+    self.certifyInstance.getStudentCertificationsPublicView({from: self.myAccount})
+    .then(function(isPublic){
+      if(callbackSuccess) callbackSuccess(isPublic);
+    }).catch(function(e) {
+        if(callbackFailure) callbackFailure("Couldn't get visibility. Error: " + e);
+    });
+  } 
 }
 
 window.CertificationManager = new CertificationManager();

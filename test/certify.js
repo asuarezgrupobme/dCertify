@@ -34,7 +34,7 @@ contract('Certify', function(accounts) {
     }).then(function() {
       return certifyInstance.getRole.call(accounts[3], {from: adminAccount});
     }).then(function(role) {
-      assert.equal(role, 1, "Account 0 should be Admin now");
+      assert.equal(role, 1, "Account 3 should be Admin now");
     });
   });
 

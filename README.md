@@ -6,6 +6,7 @@ DCertify identifies the role associated to the Ethereum address selected in Meta
 
 DCertify uses Metamask to send and sign transactions and detect automatically account changes (different roles).
 
+
 ## Roles
 There are three different roles with different permissions and capabilities:
 - Admins:
@@ -24,32 +25,42 @@ There are three different roles with different permissions and capabilities:
 Setting up DCertify is pretty simple. This project has been created with Truffle. Please follow the following instructions to run DCertify:
 
 1. clone the repository to your local machine:
+
 **git clone ...**
 
 and install node modules:
+
 **npm install**
 
 2. Edit your truffle.js (or truffle-config.js) file with your network settings. You may need to edit the IP and port where your Ethereum client is running.
 
 3. Compile and migrate your contracts from within your project folder:
+
 **truffle compile**
+
 **truffle migrate**
+
 Note: keep in mind that the account[0] will be associated an Admin role. You can run the tests for the smart contracts by running:
+
 **truffle test**
 
 4. Install and configure Metamask to point to your network. You will need at least 3 different accounts to fully test all functionality (admin, institution and student).
 
 5. Start your application:
+
 **npm run start**
 
 6. Browse to:
 [http://localhost:3000]
 
+
 ## Screenshots
 Below you can find screenshots of different functionalities within the tool:
 
+
 ### Invalid Account Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/00.png "Invalid account")
+
 
 ### Admin Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/01.png "Admin dashboard")
@@ -64,6 +75,7 @@ Below you can find screenshots of different functionalities within the tool:
 #### Update Issuing Price
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/05.png "Set Issuing Price")
 
+
 ### Institution Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/07.png "Institution dashboard")
 
@@ -73,6 +85,7 @@ Below you can find screenshots of different functionalities within the tool:
 
 #### Issue certification to student
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/11.png "Issue certification to student")
+
 
 ### Student Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/12.png "View certifications received and Change certifications visibilityt")

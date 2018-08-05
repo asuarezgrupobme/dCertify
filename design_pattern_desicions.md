@@ -22,3 +22,7 @@ There are 3 different roles and each role have their permissions and capabilitie
 3. Storing data in IPFS
 
 Blockchain shouldn't be used to store large amount of data. TO avoid this, the system uses IPFS to store info in json format and store only the hash in the blockchain. Then it uses this IPFS hash to retrieve the files from IPFS.
+
+4. Emergency Stop 
+
+I have added an option to disable critical contract functionality in case of an emergency. Critical funcionalities such as: add admin, add institution, issue certification, update issuing price, or withdraw funds.

@@ -5,7 +5,11 @@ import "./Utils.sol";
 /** @title DCertify: issuing certifications on the blockchain. */
 contract Certify {        
 
+
     //Modifiers
+    modifier stoppedInEmergency  {require(!isStopped); _;}
+    modifier onlyWhenStopped {require(isStopped); _;}
+    
     modifier isAdmin() {require(userRoles[msg.sender] == Utils.UserRole.Admin); _;} //check if address is administrator
     modifier isInstitution() {require(userRoles[msg.sender] == Utils.UserRole.Institution); _;} //check if address is institution
     modifier isStudent() {require(userRoles[msg.sender] == Utils.UserRole.Student); _;} //check if address is student
@@ -17,6 +21,8 @@ contract Certify {
     modifier enoughPay() {require(msg.value >= pricePerCertification); _;} //check if value sent is enough to pay for issuing certification
     
     //Variables
+    bool private isStopped; //emergency stop
+
     mapping (address => Utils.UserRole) private userRoles; // map of addresses and roles
     mapping (address => Utils.Institution) private mapInstitutions; // map of addresseses and institutions
     mapping (address => Utils.Student) private mapStudents; // map of addresses and students
@@ -34,10 +40,24 @@ contract Certify {
     /* constructor
     Set the sender as administrator
     Initialize the price of issuing a certification
+    Emergency stop disabled
     */
     function Certify() public {
-        userRoles[msg.sender] = Utils.UserRole.Admin;
+        userRoles[msg.sender] = Utils.UserRole.Admin; //creator is first Admin
         pricePerCertification = 1000000000000000; //wei
+        isStopped = false;
+    }
+
+    /** @dev Stop contract
+        */
+    function stopContract() public isAdmin {
+        isStopped = true;
+    }
+
+    /** @dev Resume contract
+        */
+    function resumeContract() public isAdmin {
+        isStopped = false;
     }
 
     /** @dev Returns the role associate to the sender´s address
@@ -58,7 +78,7 @@ contract Certify {
     /** @dev Add a new administrator to the system. Only accesible to administrators. Address not associated to another role.
         * @param _addrNewAdmin New admin's address.
         */
-    function addAdmin(address _addrNewAdmin) public isAdmin isRoleInvalid(_addrNewAdmin) {
+    function addAdmin(address _addrNewAdmin) public isAdmin isRoleInvalid(_addrNewAdmin) stoppedInEmergency{
         userRoles[_addrNewAdmin] = Utils.UserRole.Admin;
         emit AdminAdded(_addrNewAdmin);
     }
@@ -67,7 +87,7 @@ contract Certify {
         * @param _addrInstitution New institution's address.
         * @param _ipfsHashInfo IPFS hash with institution's info.
         */
-    function addInstitution(address _addrInstitution, string _ipfsHashInfo) public isAdmin isRoleInvalid(_addrInstitution) {
+    function addInstitution(address _addrInstitution, string _ipfsHashInfo) public isAdmin isRoleInvalid(_addrInstitution) stoppedInEmergency {
         Utils.Institution memory _institution = Utils.Institution({ ipfsHashInfo: _ipfsHashInfo, certificationsIpfsHash: new string[](0)});
         mapInstitutions[_addrInstitution] = _institution;
         userRoles[_addrInstitution] = Utils.UserRole.Institution;
@@ -77,7 +97,7 @@ contract Certify {
     /** @dev Create a new institution in the system. Only accesible to institutions. IFSH not associated to another certification.
         * @param _ipfsHash IPFS hash with certification's info.
         */
-    function createCertification(string _ipfsHash) public isInstitution certificationNotExists(_ipfsHash) {
+    function createCertification(string _ipfsHash) public isInstitution certificationNotExists (_ipfsHash) stoppedInEmergency {
         mapCertificationInstitution[_ipfsHash] = msg.sender;
         mapInstitutions[msg.sender].certificationsIpfsHash.push(_ipfsHash);
         emit CertificationCreated(msg.sender, _ipfsHash);
@@ -105,7 +125,7 @@ contract Certify {
         * @param _timeMiliseconds Issue date in miliseconds since 1/1/1970
         * @param _score Scored obtained multiplied by 100 (2 decimals)
         */
-    function issueCertificacionToStudent(address _addrStudent, string _ipfsHash, uint _timeMiliseconds, uint _score) public payable isInstitution enoughPay certificationExists(_ipfsHash){
+    function issueCertificacionToStudent(address _addrStudent, string _ipfsHash, uint _timeMiliseconds, uint _score) public payable isInstitution enoughPay certificationExists(_ipfsHash) stoppedInEmergency {
         require(userRoles[_addrStudent] == Utils.UserRole.Student || userRoles[_addrStudent] == Utils.UserRole.Invalid);       
         Utils.Student storage _student = mapStudents[_addrStudent];        
         require(_student.hasCertification[_ipfsHash] == false);
@@ -147,21 +167,21 @@ contract Certify {
     /** @dev Allow or deny public access to the list of certifications issued to a student. Only accesible to student.
         * @param _publicView Allow public access to student´s certifications
         */
-    function setStudentCertificationsPublicView(bool _publicView) public isStudent {
+    function setStudentCertificationsPublicView(bool _publicView) public isStudent stoppedInEmergency {
         mapStudents[msg.sender].allowPublicView = _publicView;
     }
 
     /** @dev Set the price of issuing a certification. Only accesible to administrators
         * @param _wei New price.
         */
-    function updatePricePerCertification(uint _wei) public isAdmin {
+    function updatePricePerCertification(uint _wei) public isAdmin stoppedInEmergency {
         pricePerCertification = _wei;
     }
 
     /** @dev Withdraw funds in contract to admin address. Only accesible to admins. Check account has enough balance
         * @param _wei Amount to be withdrawed
         */
-    function withdraw(uint _wei) public isAdmin {
+    function withdraw(uint _wei) public isAdmin stoppedInEmergency {
         require(address(this).balance>=_wei);
         msg.sender.transfer(_wei);
     }

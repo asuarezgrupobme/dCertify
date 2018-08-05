@@ -122,7 +122,7 @@ class CertificationManager {
       else {
         console.warn("No web3 detected.");
         // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
       }
     }
     else {

@@ -24,15 +24,19 @@ There are three different roles with different permissions and capabilities:
 ## Setup
 Setting up DCertify is pretty simple. This project has been created with Truffle. Please follow the following instructions to run DCertify:
 
-1. clone the repository to your local machine:
+1. install git (if not installed yet) and clone the repository to your local machine:
 
-**git clone ...**
+**git clone https://github.com/asuarezgrupobme/dCertify.git**
 
-and install node modules:
+install node.js and npm (if not installed yet) and install node packages for the project:
 
 **npm install**
 
-2. Edit your truffle.js (or truffle-config.js) file with your network settings. You may need to edit the IP and port where your Ethereum client is running.
+install truffle (if not installed yet):
+
+**npm install -g truffle**
+
+2. Edit the truffle.js file to match your network settings. You may need to edit the IP and port where your RPC Server (Ganache) is running (http://127.0.0.1:7545 by default).
 
 3. Compile and migrate your contracts from within your project folder:
 

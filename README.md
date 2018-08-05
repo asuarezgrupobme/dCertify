@@ -47,25 +47,34 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 
 ## Screenshots
 Below you can find screenshots of different functionalities within the tool:
-0. Invalid account
+
+### Invalid Account Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/00.png "Invalid account")
-###Admin Dashboard
+
+### Admin Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/01.png "Admin dashboard")
-1. Add Admin
+
+#### Add Admin
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/02.png "Add admin and signing tx")
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/03.png "Transaction confirmed")
-2. Add Institution
+
+#### Add Institution
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/04.png "Add institution")
-3. Update Issuing Price
+
+#### Update Issuing Price
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/05.png "Set Issuing Price")
-###Institution Dashboard
+
+### Institution Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/07.png "Institution dashboard")
-3. Create certification
+
+#### Create certification
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/08.png "Create certification")
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/10.png "View certifications")
-4. Issue certification to student
+
+#### Issue certification to student
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/11.png "Issue certification to student")
-###Student Dashboard
+
+### Student Dashboard
 ![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/12.png "View certifications received and Change certifications visibilityt")
 
 

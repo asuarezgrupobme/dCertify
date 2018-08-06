@@ -55,7 +55,7 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 **npm run start**
 
 6. Browse to:
-[http://localhost:3000]
+[http://localhost:3000](http://localhost:3000)
 
 
 ## Youtube Video

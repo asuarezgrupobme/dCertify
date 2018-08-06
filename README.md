@@ -48,6 +48,8 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 
 **truffle test**
 
+most tests have been implemented in JavaScript.
+
 4. Install and configure Metamask to point to your network. You will need at least 3 different accounts to fully test all functionality (admin, institution and student).
 
 5. Start your application:
@@ -55,7 +57,7 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 **npm run start**
 
 6. Browse to:
-[http://localhost:3000]
+[http://localhost:3000](http://localhost:3000)
 
 
 ## Youtube Video

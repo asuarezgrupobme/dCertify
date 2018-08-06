@@ -38,7 +38,7 @@ class AddInstitution extends React.Component {
         const _address = document.getElementById("address").value;
         const _institutionJSON = {name: _name, address: _address};
         this.manager.addInstitution(_address, _institutionJSON, function(tx, ipfsHash){
-            console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
+            console.log((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
         });     
     }
@@ -79,7 +79,7 @@ class AddAdmin extends React.Component {
     addAdmin() {
         const _address = document.getElementById("address").value;
         this.manager.addAdmin(_address, function(tx){
-            console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
+            console.log((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
         });         
     }
@@ -117,7 +117,7 @@ class SetPrice extends React.Component {
         const _ether = Number(document.getElementById("price").value);
         this.manager.setPrice(_ether, 
         function(tx){
-            console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
+            console.log((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
         }, function(error) {
             console.error("We couldn't udpate price: " + error);
@@ -160,8 +160,7 @@ class AddCertification extends React.Component {
         const _certificationJSON = {name: _name, description: _description, badge: _badge};
         const _self = this;
         this.manager.createCertification(_certificationJSON, function(tx, ipfsHash){
-            console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
-            
+            console.log((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             document.location.href="/";
         });     
@@ -306,7 +305,7 @@ class IssueCertification extends React.Component {
         const _date = new Date(this.state.issueDate.toDate());
         const _score = document.getElementById("score").value;
         this.manager.issueCertificacionToStudent (_addrStudent, _certificationIpfsHash, _date, _score, function(tx, ipfsHash){
-            console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
+            console.log((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
         });     
     }
@@ -398,9 +397,9 @@ class StudentCertifications extends React.Component {
         const _v = document.getElementById("chkIsPublic").checked;
         this.manager.setStudentCertificationsPublicView(_v, 
         function(tx){
-            console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
-            self.setState({isPublic: _v});
+            console.log((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
+            self.setState({isPublic: _v});
             
         }, function(error) {
             console.error("We couldn't udpate visibility: " + error);

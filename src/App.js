@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import CertifyContract from '../build/contracts/Certify.json'
 import Dashboard from './utils/dashboard'
 
 import './css/oswald.css'

@@ -61,11 +61,9 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 ## Screenshots
 Below you can find video showing main functionalities:
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=YTZLz4zIUhk
-" target="_blank"><img src="http://img.youtube.com/vi/YTZLz4zIUhk/0.jpg" 
-alt="DCERTIFY YOUTUBE" width="640" height="360" border="10" /></a>
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YTZLz4zIUhk/0.jpg)](https://www.youtube.com/watch?v=YTZLz4zIUhk)
 
-https://www.youtube.com/watch?v=YTZLz4zIUhk&feature=youtu.be
+[Video link](https://www.youtube.com/watch?v=YTZLz4zIUhk&feature=youtu.be)
 
 
 

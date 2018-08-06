@@ -58,40 +58,13 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 [http://localhost:3000]
 
 
-## Screenshots
-Below you can find screenshots of different functionalities within the tool:
+## Youtube Video
+Below you can find a video showing main functionalities:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YTZLz4zIUhk/0.jpg)](https://www.youtube.com/watch?v=YTZLz4zIUhk)
+
+[Video link](https://www.youtube.com/watch?v=YTZLz4zIUhk&feature=youtu.be)
 
 
-### Invalid Account Dashboard
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/00.png "Invalid account")
-
-
-### Admin Dashboard
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/01.png "Admin dashboard")
-
-#### Add Admin
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/02.png "Add admin and signing tx")
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/03.png "Transaction confirmed")
-
-#### Add Institution
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/04.png "Add institution")
-
-#### Update Issuing Price
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/05.png "Set Issuing Price")
-
-
-### Institution Dashboard
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/07.png "Institution dashboard")
-
-#### Create certification
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/08.png "Create certification")
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/10.png "View certifications")
-
-#### Issue certification to student
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/11.png "Issue certification to student")
-
-
-### Student Dashboard
-![alt text](https://github.com/asuarezgrupobme/dCertify/blob/master/img/12.png "View certifications received and Change certifications visibilityt")
 
 

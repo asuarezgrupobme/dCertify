@@ -58,8 +58,8 @@ Note: keep in mind that the account[0] will be associated an Admin role. You can
 [http://localhost:3000]
 
 
-## Screenshots
-Below you can find video showing main functionalities:
+## Youtube Video
+Below you can find a video showing main functionalities:
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/YTZLz4zIUhk/0.jpg)](https://www.youtube.com/watch?v=YTZLz4zIUhk)
 

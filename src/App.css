@@ -66,3 +66,19 @@ code {
   height: 16px;
   margin-right: 10px;
 }
+
+input:not([type]) {
+  min-width: 400px;
+  background: lightyellow;
+  border: 1px solid lightgray;
+}
+textarea {
+  width: 400px;
+  min-height: 100px;
+  background: lightyellow;
+  border: 1px solid lightgray;
+}
+.pure-table, table {
+  border-collapse: inherit;
+  border-spacing: 3px;
+}

@@ -161,10 +161,9 @@ class AddCertification extends React.Component {
         const _self = this;
         this.manager.createCertification(_certificationJSON, function(tx, ipfsHash){
             console.log(Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash;
-            _self.manager.getInstitutionCertifications(function(list){
-                _self.setState({certifications: list});
-            });
+            
             alert((Number(tx.receipt.status)==1?"Success":"Fail") + ". Transaction hash:" + tx.receipt.transactionHash);
+            document.location.href="/";
         });     
     }
 
@@ -180,7 +179,7 @@ class AddCertification extends React.Component {
                         </tr>
                         <tr>
                             <td>Description:</td>
-                            <td><input id="description"/></td>
+                            <td><textarea id="description"></textarea></td>
                         </tr>
                         <tr>
                             <td>Badge Image URL:</td>
@@ -505,7 +504,7 @@ class InvalidDashboard extends Component {
         return (
             <div>
                 <h1>Welcome to dCertify</h1>
-                <h3>You are not registered user. Feel free to navigate to public areas.</h3>
+                <h3>You are not a registered user and will have access to public areas only.</h3>
             </div>
         );
     }

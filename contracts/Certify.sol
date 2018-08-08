@@ -1,10 +1,11 @@
 pragma solidity ^0.4.17;
 
 import "./Utils.sol";
+import "./SafeMath.sol";
 
 /** @title DCertify: issuing certifications on the blockchain. */
 contract Certify {        
-
+    using SafeMath for uint256;
 
     //Modifiers
     modifier stoppedInEmergency  {require(!isStopped); _;}
@@ -132,7 +133,7 @@ contract Certify {
         userRoles[_addrStudent] = Utils.UserRole.Student;       
         _student.hasCertification[_ipfsHash] = true; 
         _student.certificationsReceived.push(Utils.StudentCertification(_ipfsHash, _timeMiliseconds, _score));
-        msg.sender.transfer(msg.value - pricePerCertification);
+        msg.sender.transfer(msg.value.sub(pricePerCertification));
         emit CertificationIssued(msg.sender, _ipfsHash, _addrStudent);
     }
 

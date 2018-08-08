@@ -6,10 +6,12 @@ I have implemented a modifier to make sure value sent in transaction is greater 
 
 **msg.sender.transfer(msg.value - pricePerCertification);**
 
+2. Reentrancy
+By using the function **transfer** instead of **call** when refunding over paid amount I avoid reentrancy possible attack.
+
+
 I couldn't identify other vulnerabilities such as:
-* Race Conditions
 * Transaction-Ordering Dependence (TOD) / Front Running
 * Timestamp Dependence
-* Integer Overflow and Underflow
 * DoS with (Unexpected) revert
 * DoS with Block Gas Limit

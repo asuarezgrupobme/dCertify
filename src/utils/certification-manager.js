@@ -1,4 +1,4 @@
-const IPFS = require('ipfs')
+const IPFS = require('ipfs-api')
 
 import { default as contract } from 'truffle-contract'
 
@@ -163,20 +163,16 @@ class CertificationManager {
       self.myAccount = accs[0];//my account
 
       //initizalize IPFS
-      self.nodeIPFS = new IPFS();
-      self.nodeIPFS.on('ready', function(){
-        console.log("IPFS node is ready");
-
-        //get my role to draw dashboard
-        self.certifyContract.deployed().then((instance) => {
-          self.certifyInstance = instance;
-          return self.certifyInstance.getMyRole({from: self.myAccount})
-        }).then((result) => {
-          var role = result.toNumber();
-          self.userRole = role;
-          if(callbackSuccess) callbackSuccess();
-        })
-      });
+      self.nodeIPFS = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+      //get my role to draw dashboard
+      self.certifyContract.deployed().then((instance) => {
+        self.certifyInstance = instance;
+        return self.certifyInstance.getMyRole({from: self.myAccount})
+      }).then((result) => {
+        var role = result.toNumber();
+        self.userRole = role;
+        if(callbackSuccess) callbackSuccess();
+      })
     });
   }
 
